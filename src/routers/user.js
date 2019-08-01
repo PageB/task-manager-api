@@ -15,7 +15,7 @@ router.post('/users', async (req, res) => {
 
     const token = await user.generateAuthToken();
 
-    res.status(201).send({ user, token});
+    res.status(201).send({ user, token });
   } catch (e) {
     res.status(400).send(e);
   }
@@ -27,7 +27,7 @@ router.post('/users/login', async (req, res) => {
   try {
     const user = await User.findByCredentials(email, password);
     const token = await user.generateAuthToken();
-  
+
     res.status(200).send({ user, token });
   } catch (e) {
     res.status(400).send(e);
@@ -62,8 +62,6 @@ router.post('/users/logoutAll', auth, async (req, res) => {
 });
 
 router.get('/users/me', auth, async (req, res) => {
-  console.log(req.user)
-
   res.send(req.user);
 });
 
@@ -72,9 +70,9 @@ router.patch('/users/me', auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ['name', 'email', 'age', 'password'];
   const isValidUpdate = updates.every((update) => allowedUpdates.includes(update))
-  
+
   if (!isValidUpdate) {
-    return res.status(400).send({ error: 'Invalid updates.'})
+    return res.status(400).send({ error: 'Invalid updates.' })
   }
 
   try {
@@ -116,23 +114,23 @@ const upload = multer({
 })
 
 router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
-    const buffer = await sharp(req.file.buffer)
-      .png()
-      .resize({ width: 250, height: 250 })
-      .toBuffer()
+  const buffer = await sharp(req.file.buffer)
+    .png()
+    .resize({ width: 250, height: 250 })
+    .toBuffer()
 
-    req.user.avatar = buffer;
-    await req.user.save();
-    
-    res.status(200).send();
+  req.user.avatar = buffer;
+  await req.user.save();
+
+  res.status(200).send();
 }, (error, req, res, next) => {
-    res.status(400).send({ error: error.message })
+  res.status(400).send({ error: error.message })
 });
 
 router.delete('/users/me/avatar', auth, async (req, res) => {
   req.user.avatar = undefined;
   await req.user.save();
-  
+
   res.status(200).send();
 });
 
